@@ -45,5 +45,6 @@
     "transformIgnorePatterns": [
       "node_modules/(?!(axios))"
     ]
-  }
+  },
+  "proxy": "http://localhost:8080"
 }

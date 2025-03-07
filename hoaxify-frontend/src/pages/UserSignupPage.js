@@ -7,6 +7,7 @@ const UserSignupPage = ({
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [passwordRepeat, setPasswordRepeat] = useState('');
+  const [pendingApiCall, setPendingApiCall] = useState(false);
 
   const onClickSignup = () => {
     const user = {
@@ -14,7 +15,15 @@ const UserSignupPage = ({
       username,
       password,
     };
-    actions.postSignup(user);
+    setPendingApiCall(true);
+    actions
+      .postSignup(user)
+      .then((response) => {
+        setPendingApiCall(false);
+      })
+      .catch((error) => {
+        setPendingApiCall(false);
+      });
   };
 
   return (
@@ -59,7 +68,21 @@ const UserSignupPage = ({
         />
       </div>
       <div className="text-center mt-3">
-        <button className="btn btn-primary" onClick={onClickSignup}>
+        <button
+          className="btn btn-primary"
+          onClick={onClickSignup}
+          disabled={pendingApiCall}
+        >
+          {pendingApiCall && (
+            <>
+              <span
+                className="spinner-border spinner-border-sm mr-2"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              <span className="visually-hidden">Loading...</span>
+            </>
+          )}
           Sign Up
         </button>
       </div>

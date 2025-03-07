@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import UserSignupPage from './UserSignupPage';
@@ -77,6 +77,16 @@ describe('Interactions', () => {
     return button;
   };
 
+  const mockAsyncDelayed = () => {
+    return jest.fn().mockImplementation(() => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({});
+        }, 300);
+      });
+    });
+  };
+
   it('sets the display name value into state', () => {
     render(<UserSignupPage />);
     const displayNameInput = screen.getByPlaceholderText('Your display name');
@@ -137,4 +147,59 @@ describe('Interactions', () => {
     };
     expect(actions.postSignup).toHaveBeenCalledWith(expectedUserObject);
   });
+
+  it('does not allow user to click the Sign Up button when there is an ongoing api call', () => {
+    const actions = {
+      postSignup: mockAsyncDelayed(),
+    };
+    setupForSubmit({ actions });
+    userEvent.click(button);
+    userEvent.click(button);
+    expect(actions.postSignup).toHaveBeenCalledTimes(1);
+  });
+
+  it('displays spinner when there is an ongoing api call', () => {
+    const actions = {
+      postSignup: mockAsyncDelayed(),
+    };
+    setupForSubmit({ actions });
+    userEvent.click(button);
+    const spinner = screen.queryByText('Loading...');
+    expect(spinner).toBeInTheDocument();
+  });
+
+  it('hides spinner after api call finishes successfully', async () => {
+    const actions = {
+      postSignup: mockAsyncDelayed(),
+    };
+    setupForSubmit({ actions });
+    userEvent.click(button);
+    await screen.findByRole('button', { name: 'Sign Up' });
+    const spinner = screen.queryByText('Loading...');
+    expect(spinner).not.toBeInTheDocument();
+  });
+
+  it('hides spinner after api call finishes with error', async () => {
+    const actions = {
+      postSignup: jest.fn().mockImplementation(() => {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            reject({
+              response: {
+                data: {},
+              },
+            });
+          }, 300);
+        });
+      }),
+    };
+    setupForSubmit({ actions });
+    userEvent.click(button);
+    await waitFor(() => {
+      const spinner = screen.queryByText('Loading...');
+      expect(spinner).not.toBeInTheDocument();
+    });
+  });
 });
+
+console.error = () => {};
