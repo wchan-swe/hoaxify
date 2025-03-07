@@ -18,40 +18,50 @@ const UserSignupPage = ({
   };
 
   return (
-    <div>
-      <h1>Sign Up</h1>
-      <div>
+    <div className="container">
+      <h1 className="text-center">Sign Up</h1>
+      <div className="col-12-mb-3">
+        <label>Display Name</label>
         <input
+          className="form-control"
           placeholder="Your display name"
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
         />
       </div>
-      <div>
+      <div className="col-12-mb-3">
+        <label>Username</label>
         <input
+          className="form-control"
           placeholder="Your username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
       </div>
-      <div>
+      <div className="col-12-mb-3">
+        <label>Password</label>
         <input
+          className="form-control"
           placeholder="Your password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      <div>
+      <div className="col-12-mb-3">
+        <label>Password Repeat</label>
         <input
+          className="form-control"
           placeholder="Repeat your password"
           type="password"
           value={passwordRepeat}
           onChange={(e) => setPasswordRepeat(e.target.value)}
         />
       </div>
-      <div>
-        <button onClick={onClickSignup}>Sign Up</button>
+      <div className="text-center mt-3">
+        <button className="btn btn-primary" onClick={onClickSignup}>
+          Sign Up
+        </button>
       </div>
     </div>
   );
