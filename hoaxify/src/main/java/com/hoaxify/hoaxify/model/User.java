@@ -1,5 +1,6 @@
 package com.hoaxify.hoaxify.model;
 
+import com.hoaxify.hoaxify.annotations.UniqueUsername;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -17,6 +18,7 @@ public class User {
 
     @NotNull(message = "{hoaxify.constraints.username.NotNull.message}")
     @Size(min = 4, max = 255)
+    @UniqueUsername
     private String username;
     @NotNull
     @Size(min = 4, max = 255)
