@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Input from '../components/Input';
 
 const UserSignupPage = ({
@@ -10,6 +10,11 @@ const UserSignupPage = ({
   const [passwordRepeat, setPasswordRepeat] = useState('');
   const [pendingApiCall, setPendingApiCall] = useState(false);
   const [errors, setErrors] = useState({});
+  const [passwordRepeatConfirmed, setPasswordRepeatConfirmed] = useState(true);
+
+  useEffect(() => {
+    setPasswordRepeatConfirmed(password === passwordRepeat);
+  }, [password, passwordRepeat]);
 
   const onClickSignup = () => {
     const user = {
@@ -33,58 +38,83 @@ const UserSignupPage = ({
       });
   };
 
+  const handleDisplayNameChange = (event) => {
+    setDisplayName(event.target.value);
+    setErrors((previousErrors) => ({
+      ...previousErrors,
+      displayName: undefined,
+    }));
+  };
+
+  const handleUsernameChange = (event) => {
+    setUsername(event.target.value);
+    setErrors((previousErrors) => ({
+      ...previousErrors,
+      username: undefined,
+    }));
+  };
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+    setErrors((previousErrors) => ({
+      ...previousErrors,
+      password: undefined,
+    }));
+  };
+
   return (
     <div className="container">
       <h1 className="text-center">Sign Up</h1>
-      <div className="col-12-mb-3">
+      <div className="col-12 mb-3">
         <Input
           label="Display Name"
           placeholder="Your display name"
           value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
+          onChange={handleDisplayNameChange}
           hasError={errors.displayName && true}
           error={errors.displayName}
         />
       </div>
-      <div className="col-12-mb-3">
+      <div className="col-12 mb-3">
         <Input
           label="Username"
           className="form-control"
           placeholder="Your username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={handleUsernameChange}
           hasError={errors.username && true}
           error={errors.username}
         />
       </div>
-      <div className="col-12-mb-3">
+      <div className="col-12 mb-3">
         <Input
           label="Password"
           className="form-control"
           placeholder="Your password"
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          hasError={errors.password && true}
+          onChange={handlePasswordChange}
+          hasError={(errors.password && true) || !passwordRepeatConfirmed}
           error={errors.password}
         />
       </div>
-      <div className="col-12-mb-3">
+      <div className="col-12 mb-3">
         <Input
+          label="Repeat Password"
           className="form-control"
           placeholder="Repeat your password"
           type="password"
           value={passwordRepeat}
           onChange={(e) => setPasswordRepeat(e.target.value)}
-          hasError={errors.passwordRepeat && true}
-          error={errors.passwordRepeat}
+          hasError={!passwordRepeatConfirmed}
+          error={!passwordRepeatConfirmed && 'Passwords do not match'}
         />
       </div>
       <div className="text-center mt-3">
         <button
           className="btn btn-primary"
           onClick={onClickSignup}
-          disabled={pendingApiCall}
+          disabled={pendingApiCall || !passwordRepeatConfirmed}
         >
           {pendingApiCall && (
             <>
