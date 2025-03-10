@@ -19,23 +19,27 @@ public class ErrorHandler implements ErrorController {
 
     @RequestMapping("/error")
     public ApiError handleError(WebRequest webRequest) {
-        // Retrieve error attributes and include status and message explicitly
+        // Get error attributes with necessary fields
         Map<String, Object> errorAttributes = this.errorAttributes.getErrorAttributes(
                 webRequest,
                 ErrorAttributeOptions.of(
                         ErrorAttributeOptions.Include.MESSAGE,
-                        ErrorAttributeOptions.Include.STATUS
+                        ErrorAttributeOptions.Include.STATUS,
+                        ErrorAttributeOptions.Include.BINDING_ERRORS
                 )
         );
 
-        // Debugging: Print error attributes to verify what is available
-        System.out.println("Error attributes: " + errorAttributes);
-
-        // Ensure "status" is not null, otherwise default to 500
+        // Extract status code and message safely
         int status = Optional.ofNullable((Integer) errorAttributes.get("status")).orElse(500);
-        String error = Optional.ofNullable((String) errorAttributes.get("error")).orElse("Unknown Error");
-        String path = Optional.ofNullable((String) errorAttributes.get("path")).orElse("N/A");
+        String message = Optional.ofNullable((String) errorAttributes.get("error")).orElse("Unknown Error");
 
-        return new ApiError(status, error, path);
+        // Retrieve the original request path (not "/error")
+        String path = Optional.ofNullable((String) webRequest.getAttribute("jakarta.servlet.error.request_uri", WebRequest.SCOPE_REQUEST))
+                .orElse("/unknown");
+
+        // Debugging: Print to check what path is being used
+        System.out.println("Error Path: " + path);
+
+        return new ApiError(status, message, path);
     }
 }
