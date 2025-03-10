@@ -1,6 +1,10 @@
 package com.hoaxify.hoaxify.controller;
 
 import com.hoaxify.hoaxify.exception.ApiError;
+import com.hoaxify.hoaxify.model.User;
+import com.hoaxify.hoaxify.repository.UserRepository;
+import com.hoaxify.hoaxify.service.UserService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +27,22 @@ public class LoginControllerTest {
 
     @Autowired
     TestRestTemplate testRestTemplate;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    UserService userService;
+
+    @Before
+    public void cleanup() {
+        userRepository.deleteAll();
+        // need to clear because we added interceptor in authenticate method
+        // because we don't want to add authentication headers to other tests
+        testRestTemplate.getRestTemplate().getInterceptors().clear();
+    }
+
+    // Login failure tests
 
     @Test
     public void postLogin_withoutUserCredentials_returnsUnauthorized() {
@@ -56,8 +76,27 @@ public class LoginControllerTest {
         assertThat(response.getHeaders().containsKey("WWW-Authenticate")).isFalse();
     }
 
+    // Login success tests
+
+    @Test
+    public void postLogin_withValidCredentials_returnsOk() {
+        User user = new User();
+        user.setUsername("test-user");
+        user.setDisplayName("test-display");
+        user.setPassword("P4ssword");
+        User saved = userService.save(user);
+
+        authenticate("test-user", "P4ssword");
+        ResponseEntity<Object> response = login(Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
     private void authenticate() {
         testRestTemplate.getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor("test-user", "test-password"));
+    }
+
+    private void authenticate(String username, String password) {
+        testRestTemplate.getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor(username, password));
     }
 
     public <T> ResponseEntity<T> login(Class<T> responseType) {
