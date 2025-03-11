@@ -32,14 +32,14 @@ public class UserRepositoryTest {
 
         testEntityManager.persist(user);
 
-        User inDB = userRepository.findByUsername("test-user");
+        User inDB = userRepository.findByUsername("test-user").orElse(null);
 
         assertThat(inDB).isNotNull();
     }
 
     @Test
     public void findByUsername_whenUserDoesNotExist_returnsNull() {
-        User inDB = userRepository.findByUsername("test-user");
+        User inDB = userRepository.findByUsername("test-user").orElse(null);
 
         assertThat(inDB).isNull();
     }
