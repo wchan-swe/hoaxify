@@ -1,6 +1,7 @@
 package com.hoaxify.hoaxify.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.hoaxify.hoaxify.annotations.UniqueUsername;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -21,20 +22,25 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonView(Views.Base.class)
     private long id;
 
     @NotNull(message = "{hoaxify.constraints.username.NotNull.message}")
     @Size(min = 4, max = 255)
     @UniqueUsername
+    @JsonView(Views.Base.class)
     private String username;
     @NotNull
     @Size(min = 4, max = 255)
+    @JsonView(Views.Base.class)
     private String displayName;
     @NotNull
     @Size(min = 8, max = 255)
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message= "{hoaxify.constraints.password.Pattern.message}")
+
     private String password;
 
+    @JsonView(Views.Base.class)
     private String image;
 
     @JsonIgnore // 🔥 Prevents serialization of authorities

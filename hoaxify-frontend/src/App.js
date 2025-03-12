@@ -1,5 +1,6 @@
 import React from 'react';
 import UserSignupPage from './pages/UserSignupPage';
+import LoginPage from './pages/LoginPage';
 import * as apiCalls from './api/apiCalls';
 
 const actions = {
@@ -10,6 +11,7 @@ const App = () => {
   return (
     <div>
       <UserSignupPage actions={actions} />
+      <LoginPage />
     </div>
   );
 };

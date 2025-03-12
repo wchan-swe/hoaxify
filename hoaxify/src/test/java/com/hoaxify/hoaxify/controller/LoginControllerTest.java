@@ -133,6 +133,17 @@ public class LoginControllerTest {
         assertThat(displayName).isEqualTo(inDB.getDisplayName());
     }
 
+    @Test
+    public void postLogin_withValidCredentials_notReceiveLoggedInUsersPassword() {
+        User inDB = userService.save(TestUtil.createValidUser());
+        authenticate();
+
+        ResponseEntity<Map<String, Object>> response = login(new ParameterizedTypeReference<Map<String, Object>>() {});
+        Map<String, Object> body = response.getBody();
+
+        assertThat(body.containsKey("password")).isFalse();
+    }
+
 
     private void authenticate() {
         testRestTemplate.getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor("test-user", "P4ssword"));
