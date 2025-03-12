@@ -4,11 +4,10 @@ import com.hoaxify.hoaxify.annotations.CurrentUser;
 import com.hoaxify.hoaxify.model.User;
 import com.hoaxify.hoaxify.repository.UserRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -22,16 +21,23 @@ public class LoginController {
     }
 
     @PostMapping("/api/1.0/login")
-    public Map<String, Object> handleLogin(@CurrentUser UserDetails userDetails) {
-        if (userDetails == null) {
+    public Map<String, Object> handleLogin(@CurrentUser User loggedInUser) {
+        if (loggedInUser == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
         }
 
-        // Fetch actual User from database using username
-        Optional<User> userOptional = userRepository.findByUsername(userDetails.getUsername());
-        User loggedInUser = userOptional.orElseThrow(() ->
+        // Fetch actual user from DB (ensure we get full user details)
+        Optional<User> userOptional = userRepository.findByUsername(loggedInUser.getUsername());
+        User user = userOptional.orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
-        return Collections.singletonMap("id", loggedInUser.getId());
+        // ✅ Construct a structured response including `image`
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", user.getId());
+        response.put("username", user.getUsername());
+        response.put("displayName", user.getDisplayName());
+        response.put("image", user.getImage()); // Ensure image is directly stored in response
+
+        return response;
     }
 }

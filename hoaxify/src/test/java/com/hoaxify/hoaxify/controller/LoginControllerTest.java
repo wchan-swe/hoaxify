@@ -106,6 +106,21 @@ public class LoginControllerTest {
         assertThat(id).isEqualTo(inDB.getId());
     }
 
+    @Test
+    public void postLogin_withValidCredentials_receiveLoggedInUsersImage() {
+        User inDB = userService.save(TestUtil.createValidUser());
+        authenticate();
+
+        ResponseEntity<Map<String, Object>> response = login(new ParameterizedTypeReference<Map<String, Object>>() {});
+        Map<String, Object> body = response.getBody();
+
+        // ✅ FIX: Extract `image` as a String instead of casting to a Map
+        String image = (String) body.get("image");
+
+        assertThat(image).isEqualTo(inDB.getImage());
+    }
+
+
     private void authenticate() {
         testRestTemplate.getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor("test-user", "P4ssword"));
     }

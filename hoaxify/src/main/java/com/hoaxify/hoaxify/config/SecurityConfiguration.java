@@ -37,7 +37,7 @@ public class SecurityConfiguration {
                         .anyRequest().permitAll()
         );
 
-        // Keep Basic Authentication but override the entry point
+        // Override entry point to return JSON instead of a `WWW-Authenticate` header
         http.httpBasic(httpBasic ->
                 httpBasic.authenticationEntryPoint((request, response, authException) -> {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

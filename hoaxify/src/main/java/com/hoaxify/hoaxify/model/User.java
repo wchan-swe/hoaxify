@@ -35,6 +35,8 @@ public class User implements UserDetails {
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message= "{hoaxify.constraints.password.Pattern.message}")
     private String password;
 
+    private String image;
+
     @JsonIgnore // 🔥 Prevents serialization of authorities
     private Collection<? extends GrantedAuthority> authorities;
 
