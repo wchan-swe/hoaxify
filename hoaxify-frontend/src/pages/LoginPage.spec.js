@@ -35,4 +35,20 @@ describe('LoginPage', () => {
       expect(button).toBeInTheDocument();
     });
   });
+
+  describe('Interactions', () => {
+    it('sets the username value into state', () => {
+      render(<LoginPage />);
+      const usernameInput = screen.getByPlaceholderText('Your username');
+      userEvent.type(usernameInput, 'my-user-name');
+      expect(usernameInput).toHaveValue('my-user-name');
+    });
+
+    it('sets the password value into state', () => {
+      render(<LoginPage />);
+      const passwordInput = screen.getByPlaceholderText('Your password');
+      userEvent.type(passwordInput, 'P4ssword');
+      expect(passwordInput).toHaveValue('P4ssword');
+    });
+  });
 });
