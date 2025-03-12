@@ -5,17 +5,20 @@ const LoginPage = ({ actions = { postLogin: () => Promise.resolve({}) } }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [pendingApiCall, setPendingApiCall] = useState(false);
 
   const onClickLogin = async () => {
     const user = {
       username,
       password,
     };
+    setPendingApiCall(true);
     try {
       await actions.postLogin(user);
     } catch (apiError) {
       setError(apiError.response.data);
     }
+    setPendingApiCall(false);
   };
 
   const handleUsernameChange = (event) => {
@@ -28,7 +31,7 @@ const LoginPage = ({ actions = { postLogin: () => Promise.resolve({}) } }) => {
     setError('');
   };
 
-  const isButtonDisabled = !username || !password;
+  const isButtonDisabled = !username || !password || pendingApiCall;
 
   return (
     <div className="container">
@@ -61,6 +64,13 @@ const LoginPage = ({ actions = { postLogin: () => Promise.resolve({}) } }) => {
           onClick={onClickLogin}
           disabled={isButtonDisabled}
         >
+          {pendingApiCall && (
+            <span
+              className="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+          )}
           Login
         </button>
       </div>

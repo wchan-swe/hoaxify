@@ -164,5 +164,17 @@ describe('LoginPage', () => {
       const alert = screen.queryByText('Login failed');
       expect(alert).not.toBeInTheDocument();
     });
+
+    it('does not allow the user to click the Login button when there is an ongoing API call', async () => {
+      const actions = {
+        postLogin: jest.fn().mockImplementation(() => {
+          return new Promise((resolve) => setTimeout(resolve, 100));
+        }),
+      };
+      const { usernameInput, passwordInput, button } = setup(actions);
+      typeIntoInputs(usernameInput, passwordInput, 'my-user-name', 'P4ssword');
+      userEvent.click(button);
+      expect(button).toBeDisabled();
+    });
   });
 });

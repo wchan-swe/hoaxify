@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Input from '../components/Input';
+import ButtonWithProgress from '../components/ButtonWithProgress';
 
 const UserSignupPage = ({
   actions = { postSignup: () => Promise.resolve({}) },
@@ -111,23 +112,12 @@ const UserSignupPage = ({
         />
       </div>
       <div className="text-center mt-3">
-        <button
-          className="btn btn-primary"
-          onClick={onClickSignup}
-          disabled={pendingApiCall || !passwordRepeatConfirmed}
-        >
-          {pendingApiCall && (
-            <>
-              <span
-                className="spinner-border spinner-border-sm mr-2"
-                role="status"
-                aria-hidden="true"
-              ></span>
-              <span className="visually-hidden">Loading...</span>
-            </>
-          )}
-          Sign Up
-        </button>
+        <ButtonWithProgress
+          onClickSignup={onClickSignup}
+          pendingApiCall={pendingApiCall}
+          passwordRepeatConfirmed={passwordRepeatConfirmed}
+          text="Sign Up"
+        />
       </div>
     </div>
   );
