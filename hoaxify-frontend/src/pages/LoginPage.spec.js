@@ -176,5 +176,59 @@ describe('LoginPage', () => {
       userEvent.click(button);
       expect(button).toBeDisabled();
     });
+
+    it('displays spinner when there is an ongoing API call', async () => {
+      const actions = {
+        postLogin: jest.fn(() => new Promise(() => {})),
+      };
+
+      const { usernameInput, passwordInput, button } = setup(actions);
+      typeIntoInputs(usernameInput, passwordInput, 'my-user-name', 'P4ssword');
+
+      userEvent.click(button);
+
+      const spinner = await screen.findByRole('status');
+      expect(spinner).toBeInTheDocument();
+    });
+
+    it('hides spinner after API call finishes successfully', async () => {
+      const actions = {
+        postLogin: jest.fn().mockResolvedValue({}), // Simulate a successful API call
+      };
+
+      const { usernameInput, passwordInput, button } = setup(actions);
+      typeIntoInputs(usernameInput, passwordInput, 'my-user-name', 'P4ssword');
+
+      userEvent.click(button);
+
+      // Ensure the spinner appears first
+      await screen.findByRole('status');
+
+      // Wait for the spinner to disappear
+      await waitFor(() => {
+        expect(screen.queryByRole('status')).not.toBeInTheDocument();
+      });
+    });
+
+    it('hides spinner after API call finishes with error', async () => {
+      const actions = {
+        postLogin: jest
+          .fn()
+          .mockRejectedValue({ response: { data: 'Login failed' } }), // Simulate a failed API call
+      };
+
+      const { usernameInput, passwordInput, button } = setup(actions);
+      typeIntoInputs(usernameInput, passwordInput, 'my-user-name', 'P4ssword');
+
+      userEvent.click(button);
+
+      // Ensure the spinner appears first
+      await screen.findByRole('status');
+
+      // Wait for the spinner to disappear
+      await waitFor(() => {
+        expect(screen.queryByRole('status')).not.toBeInTheDocument();
+      });
+    });
   });
 });

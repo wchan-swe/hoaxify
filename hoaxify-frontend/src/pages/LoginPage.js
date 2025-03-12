@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Input from '../components/Input';
+import ButtonWithProgress from '../components/ButtonWithProgress';
 
 const LoginPage = ({ actions = { postLogin: () => Promise.resolve({}) } }) => {
   const [username, setUsername] = useState('');
@@ -8,10 +9,7 @@ const LoginPage = ({ actions = { postLogin: () => Promise.resolve({}) } }) => {
   const [pendingApiCall, setPendingApiCall] = useState(false);
 
   const onClickLogin = async () => {
-    const user = {
-      username,
-      password,
-    };
+    const user = { username, password };
     setPendingApiCall(true);
     try {
       await actions.postLogin(user);
@@ -31,7 +29,7 @@ const LoginPage = ({ actions = { postLogin: () => Promise.resolve({}) } }) => {
     setError('');
   };
 
-  const isButtonDisabled = !username || !password || pendingApiCall;
+  const isButtonDisabled = !username || !password;
 
   return (
     <div className="container">
@@ -59,20 +57,12 @@ const LoginPage = ({ actions = { postLogin: () => Promise.resolve({}) } }) => {
         </div>
       )}
       <div className="text-center">
-        <button
-          className="btn btn-primary"
-          onClick={onClickLogin}
-          disabled={isButtonDisabled}
-        >
-          {pendingApiCall && (
-            <span
-              className="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-            ></span>
-          )}
-          Login
-        </button>
+        <ButtonWithProgress
+          onClickSignup={onClickLogin}
+          pendingApiCall={pendingApiCall}
+          passwordRepeatConfirmed={!isButtonDisabled}
+          text="Login"
+        />
       </div>
     </div>
   );
