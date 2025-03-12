@@ -3,6 +3,19 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LoginPage from './LoginPage';
 
+const setup = (actions) => {
+  render(<LoginPage actions={actions} />);
+  const usernameInput = screen.getByPlaceholderText('Your username');
+  const passwordInput = screen.getByPlaceholderText('Your password');
+  const button = screen.getByRole('button', { name: 'Login' });
+  return { usernameInput, passwordInput, button };
+};
+
+const typeIntoInputs = (usernameInput, passwordInput, username, password) => {
+  userEvent.type(usernameInput, username);
+  userEvent.type(passwordInput, password);
+};
+
 describe('LoginPage', () => {
   describe('Layout', () => {
     it('has header of Login', () => {
@@ -38,15 +51,13 @@ describe('LoginPage', () => {
 
   describe('Interactions', () => {
     it('sets the username value into state', () => {
-      render(<LoginPage />);
-      const usernameInput = screen.getByPlaceholderText('Your username');
+      const { usernameInput } = setup();
       userEvent.type(usernameInput, 'my-user-name');
       expect(usernameInput).toHaveValue('my-user-name');
     });
 
     it('sets the password value into state', () => {
-      render(<LoginPage />);
-      const passwordInput = screen.getByPlaceholderText('Your password');
+      const { passwordInput } = setup();
       userEvent.type(passwordInput, 'P4ssword');
       expect(passwordInput).toHaveValue('P4ssword');
     });
@@ -55,12 +66,8 @@ describe('LoginPage', () => {
       const actions = {
         postLogin: jest.fn().mockResolvedValue({}),
       };
-      render(<LoginPage actions={actions} />);
-      const usernameInput = screen.getByPlaceholderText('Your username');
-      userEvent.type(usernameInput, 'my-user-name');
-      const passwordInput = screen.getByPlaceholderText('Your password');
-      userEvent.type(passwordInput, 'P4ssword');
-      const button = screen.getByRole('button', { name: 'Login' });
+      const { usernameInput, passwordInput, button } = setup(actions);
+      typeIntoInputs(usernameInput, passwordInput, 'my-user-name', 'P4ssword');
       userEvent.click(button);
       await waitFor(() => {
         expect(actions.postLogin).toHaveBeenCalledTimes(1);
@@ -68,8 +75,7 @@ describe('LoginPage', () => {
     });
 
     it('does not throw exception when clicking the button when actions not provided in props', async () => {
-      render(<LoginPage />);
-      const button = screen.getByRole('button', { name: 'Login' });
+      const { button } = setup();
       await waitFor(() => expect(() => userEvent.click(button)).not.toThrow());
     });
 
@@ -77,12 +83,8 @@ describe('LoginPage', () => {
       const actions = {
         postLogin: jest.fn().mockResolvedValue({}),
       };
-      render(<LoginPage actions={actions} />);
-      const usernameInput = screen.getByPlaceholderText('Your username');
-      userEvent.type(usernameInput, 'my-user-name');
-      const passwordInput = screen.getByPlaceholderText('Your password');
-      userEvent.type(passwordInput, 'P4ssword');
-      const button = screen.getByRole('button', { name: 'Login' });
+      const { usernameInput, passwordInput, button } = setup(actions);
+      typeIntoInputs(usernameInput, passwordInput, 'my-user-name', 'P4ssword');
       userEvent.click(button);
       await waitFor(() => {
         expect(actions.postLogin).toHaveBeenCalledWith({
@@ -93,28 +95,20 @@ describe('LoginPage', () => {
     });
 
     it('enables the button when username and password is not empty', () => {
-      render(<LoginPage />);
-      const usernameInput = screen.getByPlaceholderText('Your username');
-      userEvent.type(usernameInput, 'my-user-name');
-      const passwordInput = screen.getByPlaceholderText('Your password');
-      userEvent.type(passwordInput, 'P4ssword');
-      const button = screen.getByRole('button', { name: 'Login' });
+      const { usernameInput, passwordInput, button } = setup();
+      typeIntoInputs(usernameInput, passwordInput, 'my-user-name', 'P4ssword');
       expect(button).toBeEnabled();
     });
 
     it('disables the button when username is empty', () => {
-      render(<LoginPage />);
-      const passwordInput = screen.getByPlaceholderText('Your password');
+      const { passwordInput, button } = setup();
       userEvent.type(passwordInput, 'P4ssword');
-      const button = screen.getByRole('button', { name: 'Login' });
       expect(button).toBeDisabled();
     });
 
     it('disables the button when password is empty', () => {
-      render(<LoginPage />);
-      const usernameInput = screen.getByPlaceholderText('Your username');
+      const { usernameInput, button } = setup();
       userEvent.type(usernameInput, 'my-user-name');
-      const button = screen.getByRole('button', { name: 'Login' });
       expect(button).toBeDisabled();
     });
 
@@ -124,12 +118,8 @@ describe('LoginPage', () => {
           .fn()
           .mockRejectedValue({ response: { data: 'Login failed' } }),
       };
-      render(<LoginPage actions={actions} />);
-      const usernameInput = screen.getByPlaceholderText('Your username');
-      userEvent.type(usernameInput, 'my-user-name');
-      const passwordInput = screen.getByPlaceholderText('Your password');
-      userEvent.type(passwordInput, 'P4ssword');
-      const button = screen.getByRole('button', { name: 'Login' });
+      const { usernameInput, passwordInput, button } = setup(actions);
+      typeIntoInputs(usernameInput, passwordInput, 'my-user-name', 'P4ssword');
       userEvent.click(button);
       await waitFor(() => {
         const alert = screen.getByText('Login failed');
@@ -143,12 +133,8 @@ describe('LoginPage', () => {
           .fn()
           .mockRejectedValue({ response: { data: 'Login failed' } }),
       };
-      render(<LoginPage actions={actions} />);
-      const usernameInput = screen.getByPlaceholderText('Your username');
-      userEvent.type(usernameInput, 'my-user-name');
-      const passwordInput = screen.getByPlaceholderText('Your password');
-      userEvent.type(passwordInput, 'P4ssword');
-      const button = screen.getByRole('button', { name: 'Login' });
+      const { usernameInput, passwordInput, button } = setup(actions);
+      typeIntoInputs(usernameInput, passwordInput, 'my-user-name', 'P4ssword');
       userEvent.click(button);
       await waitFor(() => {
         const alert = screen.getByText('Login failed');
@@ -166,12 +152,8 @@ describe('LoginPage', () => {
           .fn()
           .mockRejectedValue({ response: { data: 'Login failed' } }),
       };
-      render(<LoginPage actions={actions} />);
-      const usernameInput = screen.getByPlaceholderText('Your username');
-      userEvent.type(usernameInput, 'my-user-name');
-      const passwordInput = screen.getByPlaceholderText('Your password');
-      userEvent.type(passwordInput, 'P4ssword');
-      const button = screen.getByRole('button', { name: 'Login' });
+      const { usernameInput, passwordInput, button } = setup(actions);
+      typeIntoInputs(usernameInput, passwordInput, 'my-user-name', 'P4ssword');
       userEvent.click(button);
       await waitFor(() => {
         const alert = screen.getByText('Login failed');
