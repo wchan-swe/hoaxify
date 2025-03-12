@@ -50,5 +50,137 @@ describe('LoginPage', () => {
       userEvent.type(passwordInput, 'P4ssword');
       expect(passwordInput).toHaveValue('P4ssword');
     });
+
+    it('calls postLogin when the actions are provided in props and input fields have value', async () => {
+      const actions = {
+        postLogin: jest.fn().mockResolvedValue({}),
+      };
+      render(<LoginPage actions={actions} />);
+      const usernameInput = screen.getByPlaceholderText('Your username');
+      userEvent.type(usernameInput, 'my-user-name');
+      const passwordInput = screen.getByPlaceholderText('Your password');
+      userEvent.type(passwordInput, 'P4ssword');
+      const button = screen.getByRole('button', { name: 'Login' });
+      userEvent.click(button);
+      await waitFor(() => {
+        expect(actions.postLogin).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('does not throw exception when clicking the button when actions not provided in props', async () => {
+      render(<LoginPage />);
+      const button = screen.getByRole('button', { name: 'Login' });
+      await waitFor(() => expect(() => userEvent.click(button)).not.toThrow());
+    });
+
+    it('calls postLogin with credentials in body', async () => {
+      const actions = {
+        postLogin: jest.fn().mockResolvedValue({}),
+      };
+      render(<LoginPage actions={actions} />);
+      const usernameInput = screen.getByPlaceholderText('Your username');
+      userEvent.type(usernameInput, 'my-user-name');
+      const passwordInput = screen.getByPlaceholderText('Your password');
+      userEvent.type(passwordInput, 'P4ssword');
+      const button = screen.getByRole('button', { name: 'Login' });
+      userEvent.click(button);
+      await waitFor(() => {
+        expect(actions.postLogin).toHaveBeenCalledWith({
+          username: 'my-user-name',
+          password: 'P4ssword',
+        });
+      });
+    });
+
+    it('enables the button when username and password is not empty', () => {
+      render(<LoginPage />);
+      const usernameInput = screen.getByPlaceholderText('Your username');
+      userEvent.type(usernameInput, 'my-user-name');
+      const passwordInput = screen.getByPlaceholderText('Your password');
+      userEvent.type(passwordInput, 'P4ssword');
+      const button = screen.getByRole('button', { name: 'Login' });
+      expect(button).toBeEnabled();
+    });
+
+    it('disables the button when username is empty', () => {
+      render(<LoginPage />);
+      const passwordInput = screen.getByPlaceholderText('Your password');
+      userEvent.type(passwordInput, 'P4ssword');
+      const button = screen.getByRole('button', { name: 'Login' });
+      expect(button).toBeDisabled();
+    });
+
+    it('disables the button when password is empty', () => {
+      render(<LoginPage />);
+      const usernameInput = screen.getByPlaceholderText('Your username');
+      userEvent.type(usernameInput, 'my-user-name');
+      const button = screen.getByRole('button', { name: 'Login' });
+      expect(button).toBeDisabled();
+    });
+
+    it('displays alert when login fails', async () => {
+      const actions = {
+        postLogin: jest
+          .fn()
+          .mockRejectedValue({ response: { data: 'Login failed' } }),
+      };
+      render(<LoginPage actions={actions} />);
+      const usernameInput = screen.getByPlaceholderText('Your username');
+      userEvent.type(usernameInput, 'my-user-name');
+      const passwordInput = screen.getByPlaceholderText('Your password');
+      userEvent.type(passwordInput, 'P4ssword');
+      const button = screen.getByRole('button', { name: 'Login' });
+      userEvent.click(button);
+      await waitFor(() => {
+        const alert = screen.getByText('Login failed');
+        expect(alert).toBeInTheDocument();
+      });
+    });
+
+    it('clears alert when user changes username', async () => {
+      const actions = {
+        postLogin: jest
+          .fn()
+          .mockRejectedValue({ response: { data: 'Login failed' } }),
+      };
+      render(<LoginPage actions={actions} />);
+      const usernameInput = screen.getByPlaceholderText('Your username');
+      userEvent.type(usernameInput, 'my-user-name');
+      const passwordInput = screen.getByPlaceholderText('Your password');
+      userEvent.type(passwordInput, 'P4ssword');
+      const button = screen.getByRole('button', { name: 'Login' });
+      userEvent.click(button);
+      await waitFor(() => {
+        const alert = screen.getByText('Login failed');
+        expect(alert).toBeInTheDocument();
+      });
+
+      userEvent.clear(usernameInput);
+      const alert = screen.queryByText('Login failed');
+      expect(alert).not.toBeInTheDocument();
+    });
+
+    it('clears alert when user changes password', async () => {
+      const actions = {
+        postLogin: jest
+          .fn()
+          .mockRejectedValue({ response: { data: 'Login failed' } }),
+      };
+      render(<LoginPage actions={actions} />);
+      const usernameInput = screen.getByPlaceholderText('Your username');
+      userEvent.type(usernameInput, 'my-user-name');
+      const passwordInput = screen.getByPlaceholderText('Your password');
+      userEvent.type(passwordInput, 'P4ssword');
+      const button = screen.getByRole('button', { name: 'Login' });
+      userEvent.click(button);
+      await waitFor(() => {
+        const alert = screen.getByText('Login failed');
+        expect(alert).toBeInTheDocument();
+      });
+
+      userEvent.clear(passwordInput);
+      const alert = screen.queryByText('Login failed');
+      expect(alert).not.toBeInTheDocument();
+    });
   });
 });
