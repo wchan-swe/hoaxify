@@ -2,7 +2,7 @@ import React from 'react';
 
 const UserPage = () => {
   return (
-    <div>
+    <div data-testid="userpage">
       <h1>UserPage</h1>
     </div>
   );
