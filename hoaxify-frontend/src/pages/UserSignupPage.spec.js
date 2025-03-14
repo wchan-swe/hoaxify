@@ -290,4 +290,10 @@ describe('Interactions', () => {
     const errorMessage = screen.queryByText('Cannot be null');
     expect(errorMessage).not.toBeInTheDocument();
   });
+
+  it('redirects to home page after successful sign up', async () => {
+    setupForSubmit();
+    userEvent.click(button);
+    await waitFor(() => expect(window.location.pathname).toBe('/'));
+  });
 });

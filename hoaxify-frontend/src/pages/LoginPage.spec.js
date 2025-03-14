@@ -230,5 +230,20 @@ describe('LoginPage', () => {
         expect(screen.queryByRole('status')).not.toBeInTheDocument();
       });
     });
+
+    it('redirects to home page after successful login', async () => {
+      const actions = {
+        postLogin: jest.fn().mockResolvedValue({}),
+      };
+
+      const { usernameInput, passwordInput, button } = setup(actions);
+      typeIntoInputs(usernameInput, passwordInput, 'my-user-name', 'P4ssword');
+
+      userEvent.click(button);
+
+      await waitFor(() => {
+        expect(window.location.pathname).toBe('/');
+      });
+    });
   });
 });
