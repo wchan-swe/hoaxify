@@ -1,13 +1,45 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import authReducer from '../redux/authReducer';
 import App from './App';
 
-const setup = (path) => {
+const defaultState = {
+  auth: {
+    isLoggedIn: false,
+    id: 0,
+    username: '',
+    displayName: '',
+    image: '',
+    password: '',
+  },
+};
+
+const loggedInState = {
+  auth: {
+    isLoggedIn: true,
+    id: 1,
+    username: 'user1',
+    displayName: 'display1',
+    image: 'profile1.png',
+    password: 'P4ssword',
+  },
+};
+
+const setup = (path, initialState = defaultState) => {
+  const store = configureStore({
+    reducer: { auth: authReducer },
+    preloadedState: initialState,
+  });
+
   return render(
-    <MemoryRouter initialEntries={[path]}>
-      <App />
-    </MemoryRouter>
+    <Provider store={store}>
+      <MemoryRouter initialEntries={[path]}>
+        <App />
+      </MemoryRouter>
+    </Provider>
   );
 };
 
@@ -34,7 +66,7 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
-  it('displayers userpage when url is other than /, /login or /signup', () => {
+  it('displays userpage when url is other than /, /login or /signup', () => {
     setup('/userpage');
     expect(screen.getByRole('navigation')).toBeInTheDocument();
   });
